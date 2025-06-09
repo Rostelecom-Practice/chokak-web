@@ -1,4 +1,17 @@
-import { Layout, Input, Button, Row, Col, Card, Typography, Space, Dropdown } from 'antd';
+import { useState, useEffect } from 'react';
+import { 
+  Layout, 
+  Input, 
+  Button, 
+  Row, 
+  Col, 
+  Card, 
+  Typography, 
+  Space, 
+  Dropdown,
+  Tooltip,
+  Spin
+} from 'antd';
 import { 
   SearchOutlined, 
   UserOutlined, 
@@ -6,6 +19,9 @@ import {
   EnvironmentOutlined, 
   DownOutlined 
 } from '@ant-design/icons';
+import { CityService } from '../api/cityService';
+import { LoginForm } from '../LoginForm/LoginForm';
+import { RegisterForm } from '../RegisterForm/RegisterForm';
 import './MainPage.css';
 
 const { Header, Content } = Layout;
@@ -26,37 +42,101 @@ const imageCards = [
   { title: 'Топ музеев', description: 'По оценкам посетителей' }
 ];
 
-const cities = [
-  { key: '1', label: 'Москва' },
-  { key: '2', label: 'Санкт-Петербург' },
-  { key: '3', label: 'Новосибирск' },
-  { key: '4', label: 'Екатеринбург' },
-  { key: '5', label: 'Казань' }
-];
-
 export const MainPage = () => {
+  const [loginVisible, setLoginVisible] = useState(false);
+  const [registerVisible, setRegisterVisible] = useState(false);
+  const [cities, setCities] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
+
+  useEffect(() => {
+    const loadCities = async () => {
+      try {
+        const citiesData = await CityService.getCities();
+        
+        setCities(citiesData);
+        setSelectedCity(citiesData[0]);
+      } catch (err) {
+        console.error('City loading error:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCities();
+  }, []);
+
+  const handleCitySelect = ({ key }) => {
+    const city = cities.find(c => c.key === key);
+    if (city) {
+      setSelectedCity(city);
+    }
+  };
+
+  const showLogin = () => {
+    setLoginVisible(true);
+    setRegisterVisible(false);
+  };
+
+  const showRegister = () => {
+    setRegisterVisible(true);
+    setLoginVisible(false);
+  };
+
+  const handleCancel = () => {
+    setLoginVisible(false);
+    setRegisterVisible(false);
+  };
+
   return (
     <Layout className="main-layout">
       <Header className="main-header">
         <div className="header-content">
           <div className="header-left">
             <Title level={2} className="page-title">Chokak 0_o</Title>
-            <Dropdown
-              menu={{ items: cities }}
-              placement="bottomRight"
-              trigger={['click']}
-            >
-              <Button icon={<EnvironmentOutlined />} className="city-button">
-                Москва <DownOutlined />
-              </Button>
-            </Dropdown>
+            
+            {loading ? (
+              <Spin size="small" />
+            ) : error ? (
+              <Tooltip title={error}>
+                <Button icon={<EnvironmentOutlined />} className="city-button" danger>
+                  {selectedCity?.label || 'Город'}
+                </Button>
+              </Tooltip>
+            ) : (
+              <Dropdown
+                menu={{
+                  items: cities,
+                  onClick: handleCitySelect,
+                }}
+                placement="bottomRight"
+                trigger={['click']}
+                disabled={cities.length === 0}
+              >
+                <Button icon={<EnvironmentOutlined />} className="city-button">
+                  {selectedCity?.label || 'Выберите город'} <DownOutlined />
+                </Button>
+              </Dropdown>
+            )}
           </div>
           
           <Space className="header-actions">
-            <Button type="text" icon={<UserOutlined />} className="auth-button">
+            <Button 
+              type="text" 
+              icon={<UserOutlined />} 
+              className="auth-button"
+              onClick={showRegister}
+            >
               Регистрация
             </Button>
-            <Button type="text" icon={<LoginOutlined />} className="auth-button">
+            <Button 
+              type="text" 
+              icon={<LoginOutlined />} 
+              className="auth-button"
+              onClick={showLogin}
+            >
               Вход
             </Button>
           </Space>
@@ -101,6 +181,18 @@ export const MainPage = () => {
             </Col>
           ))}
         </Row>
+
+        <LoginForm 
+          visible={loginVisible} 
+          onCancel={handleCancel} 
+          onRegisterClick={showRegister}
+        />
+        
+        <RegisterForm 
+          visible={registerVisible} 
+          onCancel={handleCancel} 
+          onLoginClick={showLogin}
+        />
       </Content>
     </Layout>
   );
