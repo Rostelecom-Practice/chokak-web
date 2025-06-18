@@ -1,14 +1,37 @@
-import { Button, Form, Input, Modal, Typography } from 'antd';
+import { Button, Form, Input, Modal, Typography, message } from 'antd';
+import { useState } from 'react';
 import { LoginOutlined } from '@ant-design/icons';
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase/firebase";
 
 const { Title } = Typography;
 
 export const LoginForm = ({ visible, onCancel, onRegisterClick }) => {
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
-  const onFinish = (values) => {
-    console.log('Received values of form: ', values);
-    // Здесь будет логика входа
+  const onFinish = async (values) => {
+    try {
+      setLoading(true);
+      const { email, password } = values;
+      
+      // Аутентификация через Firebase
+      const userCred = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCred.user;
+      const idToken = await user.getIdToken();
+
+      // Сохраняем токен в localStorage
+      localStorage.setItem("idToken", idToken);
+      
+      message.success('Вы успешно вошли в систему!');
+      form.resetFields();
+      onCancel(); // Закрываем модальное окно после успешного входа
+    } catch (error) {
+      console.error('Ошибка входа:', error);
+      message.error('Неверный email или пароль');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -61,7 +84,13 @@ export const LoginForm = ({ visible, onCancel, onRegisterClick }) => {
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" block size="large">
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              block 
+              size="large"
+              loading={loading}
+            >
               Войти
             </Button>
           </Form.Item>

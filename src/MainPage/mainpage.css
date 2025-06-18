@@ -72,10 +72,40 @@
   background: rgba(24, 144, 255, 0.1);
 }
 
+/* Стили профиля пользователя */
+.profile-dropdown {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.profile-dropdown:hover {
+  background-color: rgba(0, 0, 0, 0.025);
+}
+
+.user-avatar {
+  margin-right: 8px;
+  background-color: #1890ff;
+  cursor: pointer;
+}
+
+.user-name {
+  color: rgba(0, 0, 0, 0.85);
+  margin-left: 8px;
+  font-size: 14px;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Стили основного контента */
 .main-content {
   padding: 24px 50px;
-  max-width: 1600px; /* Увеличена максимальная ширина */
+  max-width: 1600px;
   margin: 0 auto;
 }
 
@@ -88,7 +118,7 @@
 }
 
 .search-input.ant-input {
-  width: 80%; /* Увеличена ширина строки поиска */
+  width: 80%;
   height: 48px;
   border-radius: 4px 0 0 4px;
   border-right: none;
@@ -131,32 +161,71 @@
 /* Стили карточек */
 .cards-row {
   margin-top: 36px !important;
+  row-gap: 24px !important;
 }
 
 .card-col {
   display: flex;
   justify-content: center;
-  flex: 0 0 33.3333%; /* Фиксированная ширина колонок */
-  max-width: 33.3333%; /* Максимальная ширина колонок */
+  flex: 0 0 33.3333%;
+  max-width: 33.3333%;
+  padding: 0 12px !important;
 }
 
 .image-card.ant-card {
   width: 100%;
-  max-width: 500px; /* Увеличена максимальная ширина карточек */
+  max-width: 400px;
+  height: 320px;
   border-radius: 8px;
   overflow: hidden;
   transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
 }
 
 .image-card.ant-card:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
   transform: translateY(-4px);
 }
 
+/* Область изображения */
+.image-card .ant-card-cover {
+  height: 240px;
+  overflow: hidden;
+  flex: none;
+}
+
+/* Контейнер изображения */
+.image-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f2f5;
+}
+
+/* Стили самого изображения */
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.3s ease;
+}
+
+.image-card.ant-card:hover .card-image {
+  transform: scale(1.05);
+}
+
+/* Стили для плейсхолдера */
 .image-placeholder {
-  height: 250px; /* Увеличена высота карточек */
+  width: 100%;
+  height: 100%;
   background: #f0f2f5;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   color: #999;
@@ -164,7 +233,181 @@
 }
 
 .image-placeholder-text {
-  padding-top: 20px;
+  margin-top: 12px;
+}
+
+/* Стили для контента карточки */
+.image-card .ant-card-body {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.image-card .ant-card-meta-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: rgba(0, 0, 0, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.image-card .ant-card-meta-description {
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Стили для спиннера загрузки */
+.image-placeholder .ant-spin {
+  color: #1890ff;
+}
+
+.image-placeholder .ant-spin-dot-item {
+  background-color: #1890ff;
+}
+
+/* Стили для списка организаций */
+.organizations-list-container {
+  margin-top: 24px;
+  padding: 0 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.organizations-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+}
+
+.organization-card {
+  width: 100%;
+  max-width: 800px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+  display: flex;
+}
+
+.organization-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+}
+
+.organization-image-container {
+  width: 300px;
+  height: 200px;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.organization-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.organization-card:hover .organization-image {
+  transform: scale(1.03);
+}
+
+.organization-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+}
+
+.organization-image-placeholder-icon {
+  width: 48px;
+  height: 48px;
+  background-color: #d9d9d9;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM8.5 15H10v-5h1.5v5H14V9h1.5v6.5h-1V15h-1.5v1.5h-5V15zm5-9h-5v1.5h5V6z'/%3E%3C/svg%3E");
+  mask-repeat: no-repeat;
+  mask-position: center;
+}
+
+.organization-content {
+  padding: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.organization-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.organization-title h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.organization-address {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  color: #666;
+}
+
+.organization-rating {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.organization-button {
+  margin-top: auto;
+}
+
+/* Стили для рейтинга */
+.ant-rate {
+  color: #faad14;
+  font-size: 16px;
+}
+
+/* Стили для бейджей */
+.ant-tag {
+  margin-left: 8px;
+}
+
+.ant-tag-gold {
+  background: #fffbe6;
+  border-color: #ffe58f;
+  color: #faad14;
+}
+
+/* Стили для заголовка списка организаций */
+.organizations-list-title {
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 24px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+/* Стили для спиннера загрузки */
+.organizations-loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
 }
 
 /* Адаптивные стили */
@@ -175,11 +418,25 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .main-header {
     padding: 0 24px !important;
   }
   
+  .main-content {
+    padding: 16px 24px;
+  }
+  
+  .search-input.ant-input {
+    width: 70%;
+  }
+  
+  .organization-image-container {
+    width: 250px;
+  }
+}
+
+@media (max-width: 768px) {
   .header-left {
     gap: 12px;
   }
@@ -196,6 +453,7 @@
     flex-direction: column;
     align-items: center;
     gap: 12px;
+    margin: 24px 0;
   }
   
   .search-input.ant-input {
@@ -211,6 +469,7 @@
   
   .categories-container {
     gap: 8px !important;
+    margin: 24px 0 !important;
   }
   
   .category-button.ant-btn {
@@ -223,7 +482,75 @@
     max-width: 100%;
   }
   
+  .user-name {
+    display: none;
+  }
+  
+  .profile-dropdown {
+    padding: 4px 8px;
+  }
+  
   .image-card.ant-card {
-    max-width: 100%;
+    height: 300px;
+  }
+  
+  .image-card .ant-card-cover {
+    height: 220px;
+  }
+  
+  .organization-card {
+    flex-direction: column;
+  }
+  
+  .organization-image-container {
+    width: 100%;
+    height: 180px;
+  }
+  
+  .organization-content {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-content {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 12px 0;
+  }
+  
+  .header-left {
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  
+  .header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .image-card.ant-card {
+    height: 280px;
+  }
+  
+  .image-card .ant-card-cover {
+    height: 200px;
+  }
+  
+  .organization-image-container {
+    height: 160px;
+  }
+  
+  .organization-content {
+    padding: 16px;
+  }
+  
+  .organization-title h3 {
+    font-size: 18px;
+  }
+  
+  .organizations-list-title {
+    font-size: 20px;
   }
 }
