@@ -17,7 +17,12 @@ const API_CONFIG = {
       path: '/organizations/query',
       method: 'POST',
       transform: data => data
-    }
+    },
+    REVIEWS: {
+      path: '/review/query',
+      method: 'POST',
+      transform: data => data
+    } 
   }
 };
 

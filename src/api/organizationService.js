@@ -71,6 +71,24 @@ const fetchAllPlaces = async (cityId, placeType) => {
     throw new Error(`Не удалось загрузить ${PLACE_TYPES[placeType].errorMsg}`);
   }
 };
+const fetchOrganizationReviews = async (organizationId, sort = "POPULARITY", direction = "ASC") => {
+  try {
+    const response = await apiRequest('REVIEWS', {
+      organizationId,
+      sort,
+      direction
+    });
+
+    if (!Array.isArray(response)) {
+      throw new Error('Некорректный формат ответа сервера');
+    }
+
+    return response;
+  } catch (error) {
+    console.error('Failed to load reviews:', error);
+    throw new Error('Не удалось загрузить отзывы');
+  }
+};
 
 export const OrganizationService = {
   getTopRestaurant: cityId => fetchTopPlace(cityId, 'RESTAURANTS'),
@@ -81,4 +99,5 @@ export const OrganizationService = {
   getAllMuseums: cityId => fetchAllPlaces(cityId, 'MUSEUMS'),
   getAllStores: cityId => fetchAllPlaces(cityId, 'STORES'),
   getAllHotels: cityId => fetchAllPlaces(cityId, 'HOTELS'),
+  getReviews: fetchOrganizationReviews 
 };
