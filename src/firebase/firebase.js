@@ -1,8 +1,7 @@
 import { initializeApp } from "firebase/app";
-//import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
-
-console.log("API_KEY:", import.meta.env.VITE_FIREBASE_API_KEY);
+import { 
+  getAuth
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -14,7 +13,25 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig); // Сначала инициализируем приложение
-//const analytics = getAnalytics(app); // Затем получаем analytics
-export const auth = getAuth(app); // И наконец получаем auth
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+
+
+export const loginUser = async () => {
+  try {
+    //const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    //const user = userCredential.user;
+    const user =   auth.currentUser;
+
+    console.log("Текущий user:", user);
+
+    const idToken = await user.getIdToken();
+    const localId = user.uid;
+
+    console.log("Успешный вход:", { localId, idToken });
+    return { localId, idToken };
+  } catch (error) {
+    console.error("Ошибка входа:", error.message);
+    throw error;
+  }
+};

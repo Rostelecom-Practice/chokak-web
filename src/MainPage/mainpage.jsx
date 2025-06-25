@@ -35,8 +35,9 @@ import { CityService } from '../api/cityService';
 import { OrganizationService } from '../api/organizationService';
 import { LoginForm } from '../LoginForm/LoginForm';
 import { RegisterForm } from '../RegisterForm/RegisterForm';
-import { auth } from '../firebase/firebase';
+import { auth,loginUser } from '../firebase/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { useAuth } from '../firebase/useAuth'; // Добавляем импорт
 import './MainPage.css';
 
 const { Header, Content } = Layout;
@@ -55,13 +56,13 @@ const CARD_HEIGHT = 320;
 const IMAGE_HEIGHT = 240;
 
 export const MainPage = () => {
+  const { user, loading: authLoading, getAuthData } = useAuth();
   const [loginVisible, setLoginVisible] = useState(false);
   const [registerVisible, setRegisterVisible] = useState(false);
   const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCity, setSelectedCity] = useState(null);
-  const [user, setUser] = useState(null);
   const [topPlaces, setTopPlaces] = useState({
     restaurant: null,
     cinema: null,
@@ -81,10 +82,6 @@ export const MainPage = () => {
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-
     const loadCities = async () => {
       try {
         const citiesData = await CityService.getCities();
@@ -105,8 +102,6 @@ export const MainPage = () => {
     };
 
     loadCities();
-
-    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -114,6 +109,27 @@ export const MainPage = () => {
       loadAllTopPlaces();
     }
   }, [selectedCity]);
+
+  const handleLogin = async () => {
+    try {
+      const authData = await getAuthData();
+      if (authData) {
+        const { localId, idToken } = authData;
+        console.log("Данные пользователя:", { localId, idToken });
+        localStorage.setItem("firebaseIdToken", idToken);
+        localStorage.setItem("firebaseLocalId", localId);
+      }
+    } catch (error) {
+      console.error("Ошибка:", error);
+      message.error("Ошибка получения данных пользователя");
+    }
+  };
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      handleLogin();
+    }
+  }, [authLoading, user]);
 
   const loadAllTopPlaces = async () => {
     setLoadingCards({
@@ -192,7 +208,6 @@ export const MainPage = () => {
   const loadOrganizationReviews = async (organizationId) => {
     setLoadingReviews(true);
     try {
-      // Используем правильное имя метода getReviews вместо getOrganizationReviews
       const reviewsData = await OrganizationService.getReviews(organizationId);
       setReviews(reviewsData);
     } catch (error) {
@@ -249,6 +264,8 @@ export const MainPage = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      localStorage.removeItem("firebaseIdToken");
+      localStorage.removeItem("firebaseLocalId");
       message.success('Вы успешно вышли из системы');
     } catch (error) {
       console.error('Ошибка при выходе:', error);
@@ -309,124 +326,132 @@ export const MainPage = () => {
   ];
 
   const renderOrganizationDetails = () => {
-  if (!selectedOrganization) return null;
+    if (!selectedOrganization) return null;
 
-  return (
-    <div className="organization-details-container">
-      <Button 
-        type="text" 
-        icon={<ArrowLeftOutlined />} 
-        onClick={handleBackToList}
-        style={{ marginBottom: 16 }}
-      >
-        Назад к списку
-      </Button>
+    return (
+      <div className="organization-details-container">
+        <Button 
+          type="text" 
+          icon={<ArrowLeftOutlined />} 
+          onClick={handleBackToList}
+          style={{ marginBottom: 16 }}
+        >
+          Назад к списку
+        </Button>
 
-      <div className="organization-details-layout">
-        {/* Левая колонка - информация об организации */}
-        <div className="organization-info-column">
-          <Card
-            className="organization-details-card"
-            cover={
-              <div className="organization-image-container">
-                {selectedOrganization.imageUrl ? (
-                  <img 
-                    alt={selectedOrganization.name} 
-                    src={selectedOrganization.imageUrl} 
-                    className="organization-image"
+        <div className="organization-details-layout">
+          <div className="organization-info-column">
+            <Card
+              className="organization-details-card"
+              cover={
+                <div className="organization-image-container">
+                  {selectedOrganization.imageUrl ? (
+                    <img 
+                      alt={selectedOrganization.name} 
+                      src={selectedOrganization.imageUrl} 
+                      className="organization-image"
+                    />
+                  ) : (
+                    <div className="organization-image-placeholder">
+                      <div className="organization-image-placeholder-icon"></div>
+                    </div>
+                  )}
+                </div>
+              }
+            >
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Title level={3} style={{ margin: 0 }}>{selectedOrganization.name}</Title>
+                  {selectedOrganization.rating > 4.5 && (
+                    <Tag icon={<StarFilled />} color="gold">Топ</Tag>
+                  )}
+                </div>
+
+                <div style={{ margin: '12px 0', display: 'flex', alignItems: 'center' }}>
+                  <EnvironmentOutlined style={{ marginRight: 8, color: '#888' }} />
+                  <Text type="secondary">{selectedOrganization.address}</Text>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+                  <Rate 
+                    disabled 
+                    allowHalf 
+                    defaultValue={selectedOrganization.rating} 
+                    style={{ fontSize: 16 }} 
                   />
-                ) : (
-                  <div className="organization-image-placeholder">
-                    <div className="organization-image-placeholder-icon"></div>
-                  </div>
+                  <Text style={{ marginLeft: 8 }}>
+                    {selectedOrganization.rating.toFixed(1)} ({selectedOrganization.reviewCount} отзывов)
+                  </Text>
+                </div>
+
+                <Paragraph>
+                  {selectedOrganization.description || 'Описание отсутствует'}
+                </Paragraph>
+              </div>
+            </Card>
+          </div>
+
+          <div className="organization-reviews-column">
+            <Card className="reviews-card">
+              <div className="reviews-header">
+                <Title level={4} style={{ margin: 0 }}>Отзывы</Title>
+                {user && (
+                  <Button 
+                    type="primary" 
+                    icon={<FormOutlined />}
+                    onClick={showReviewModal}
+                  >
+                    Добавить отзыв
+                  </Button>
                 )}
               </div>
-            }
-          >
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Title level={3} style={{ margin: 0 }}>{selectedOrganization.name}</Title>
-                {selectedOrganization.rating > 4.5 && (
-                  <Tag icon={<StarFilled />} color="gold">Топ</Tag>
-                )}
-              </div>
 
-              <div style={{ margin: '12px 0', display: 'flex', alignItems: 'center' }}>
-                <EnvironmentOutlined style={{ marginRight: 8, color: '#888' }} />
-                <Text type="secondary">{selectedOrganization.address}</Text>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-                <Rate 
-                  disabled 
-                  allowHalf 
-                  defaultValue={selectedOrganization.rating} 
-                  style={{ fontSize: 16 }} 
-                />
-                <Text style={{ marginLeft: 8 }}>
-                  {selectedOrganization.rating.toFixed(1)} ({selectedOrganization.reviewCount} отзывов)
-                </Text>
-              </div>
-
-              <Paragraph>
-                {selectedOrganization.description || 'Описание отсутствует'}
-              </Paragraph>
-            </div>
-          </Card>
-        </div>
-
-        {/* Правая колонка - отзывы */}
-        <div className="organization-reviews-column">
-          <Card className="reviews-card">
-            <div className="reviews-header">
-              <Title level={4} style={{ margin: 0 }}>Отзывы</Title>
-              <Button 
-                type="primary" 
-                icon={<FormOutlined />}
-                onClick={showReviewModal}
-              >
-                Добавить отзыв
-              </Button>
-            </div>
-
-            {loadingReviews ? (
-              <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
-                <Spin size="large" />
-              </div>
-            ) : (
-              <div className="reviews-list">
-                {reviews.map(review => (
-                  <div key={review.id} className="review-item">
-                    <div className="review-header">
-                      <Avatar icon={<UserOutlined />} />
-                      <div className="review-author">
-                        <Text strong>{review.title}</Text>
-                        <Text type="secondary">
-                          {new Date(review.createdAt).toLocaleDateString()}
-                        </Text>
+              {loadingReviews ? (
+                <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
+                  <Spin size="large" />
+                </div>
+              ) : (
+                <div className="reviews-list">
+                  {reviews.map(review => (
+                    <div key={review.id} className="review-item">
+                      <div className="review-header">
+                        <Avatar icon={<UserOutlined />} />
+                        <div className="review-author">
+                          <Text strong>{review.title}</Text>
+                          <Text type="secondary">
+                            {new Date(review.createdAt).toLocaleDateString()}
+                          </Text>
+                        </div>
+                        {review.rating > 0 && (
+                          <Rate 
+                            disabled 
+                            value={review.rating} 
+                            character={<StarOutlined />} 
+                            style={{ fontSize: 14 }} 
+                          />
+                        )}
                       </div>
-                      {review.rating > 0 && (
-                        <Rate 
-                          disabled 
-                          value={review.rating} 
-                          character={<StarOutlined />} 
-                          style={{ fontSize: 14 }} 
-                        />
-                      )}
+                      <div className="review-content">
+                        <Text>{review.content}</Text>
+                      </div>
                     </div>
-                    <div className="review-content">
-                      <Text>{review.content}</Text>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
+
+  if (authLoading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <Layout className="main-layout">
