@@ -22,7 +22,16 @@ const API_CONFIG = {
       path: '/review/query',
       method: 'POST',
       transform: data => data
-    } 
+    },
+    SUBMIT_REVIEW: {
+      path: '/review/submit',
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('firebaseIdToken')}`,
+        'X-User-Uid': localStorage.getItem('firebaseLocalId')
+      },
+      transform: data => data
+    }
   }
 };
 
@@ -30,9 +39,17 @@ export const getApiConfig = (endpointKey, data = null) => {
   const endpoint = API_CONFIG.ENDPOINTS[endpointKey];
   if (!endpoint) throw new Error(`Unknown endpoint: ${endpointKey}`);
   
+  // Получаем headers из эндпоинта (если они есть)
+  const endpointHeaders = typeof endpoint.headers === 'function' 
+    ? endpoint.headers()
+    : endpoint.headers || {};
+
   return {
     method: endpoint.method,
-    headers: API_CONFIG.DEFAULT_HEADERS,
+    headers: {
+      ...API_CONFIG.DEFAULT_HEADERS,
+      ...endpointHeaders  // Добавляем специфичные для эндпоинта headers
+    },
     ...(data && { body: JSON.stringify(data) })
   };
 };
@@ -42,14 +59,28 @@ export const apiRequest = async (endpointKey, data = null) => {
   if (!endpoint) throw new Error(`Unknown endpoint: ${endpointKey}`);
 
   try {
+    const config = getApiConfig(endpointKey, data);
+    
+    console.log('Making request to:', `${API_CONFIG.BASE_URL}${endpoint.path}`);
+    console.log('Request config:', {
+      method: config.method,
+      headers: config.headers,
+      body: config.body ? JSON.parse(config.body) : null
+    });
 
     const response = await fetch(
       `${API_CONFIG.BASE_URL}${endpoint.path}`,
-      getApiConfig(endpointKey, data)
+      config
     );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
+      console.error('Full error response:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+        errorData
+      });
       throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
     }
 

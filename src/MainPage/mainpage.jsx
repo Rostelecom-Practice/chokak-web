@@ -32,6 +32,7 @@ import {
   FormOutlined
 } from '@ant-design/icons';
 import { CityService } from '../api/cityService';
+import { ReviewForm } from '../ReviewForm/ReviewForm';
 import { OrganizationService } from '../api/organizationService';
 import { LoginForm } from '../LoginForm/LoginForm';
 import { RegisterForm } from '../RegisterForm/RegisterForm';
@@ -717,21 +718,18 @@ export const MainPage = () => {
           onLoginClick={showLogin}
         />
 
-        <Modal
-          title="Добавить отзыв"
-          open={reviewModalVisible}
-          onCancel={handleReviewModalCancel}
-          footer={[
-            <Button key="back" onClick={handleReviewModalCancel}>
-              Отмена
-            </Button>,
-            <Button key="submit" type="primary" onClick={handleReviewModalCancel}>
-              Отправить
-            </Button>,
-          ]}
-        >
-          <p>Форма для добавления отзыва будет здесь</p>
-        </Modal>
+        {selectedOrganization && (
+          <ReviewForm
+            visible={reviewModalVisible}
+            onCancel={handleReviewModalCancel}
+            organizationId={selectedOrganization.id}
+            userId={user?.uid}
+            onSuccess={(result) => {
+              // Обновляем список отзывов после успешного добавления
+              loadOrganizationReviews(selectedOrganization.id);
+            }}
+          />
+        )}
       </Content>
     </Layout>
   );
