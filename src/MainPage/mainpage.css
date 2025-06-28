@@ -6,11 +6,10 @@
 
 /* Стили шапки */
 .main-header {
-  background: #fff !important;
+  background: #f5f5f5 !important;
   padding: 0 50px !important;
-  height: 64px;
-  line-height: 64px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height: 80px;
+  line-height: 80px;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -22,19 +21,49 @@
   align-items: center;
   width: 100%;
   height: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
-.header-left {
+.header-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.header-right {
   display: flex;
   align-items: center;
   gap: 24px;
+  margin-left: auto;
 }
 
 .page-title {
   margin: 0 !important;
-  color: #1890ff !important;
+  color: #000000 !important;
   font-weight: 600 !important;
   white-space: nowrap;
+  font-size: 40px !important;
+}
+
+/* Увеличенные шрифты */
+.ant-typography h1 {
+  font-size: 28px;
+}
+.ant-typography h2 {
+  font-size: 24px;
+}
+.ant-typography h3 {
+  font-size: 20px;
+}
+.ant-typography h4 {
+  font-size: 18px;
+}
+.ant-btn-lg {
+  font-size: 16px;
+}
+.ant-input-lg {
+  font-size: 16px;
 }
 
 /* Стили кнопки города */
@@ -42,16 +71,21 @@
   display: flex;
   align-items: center;
   padding: 0 12px;
-  height: 32px;
-  border: 1px solid #d9d9d9;
+  height: 40px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 4px;
-  background: #fff;
-  color: rgba(0, 0, 0, 0.85);
+  background: rgba(255, 255, 255, 0.1);
+  color: #000000 !important;
+  font-size: 20px;
+  transition: all 0.3s ease; 
+  border-color: #000000 !important;
 }
 
 .city-button.ant-btn:hover {
-  color: #1890ff;
-  border-color: #1890ff;
+  color: #ffffff;
+  border-color: #000000; 
+  background: rgba(0, 0, 0, 0.8); 
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Стили кнопок авторизации */
@@ -62,14 +96,18 @@
 }
 
 .auth-button.ant-btn {
-  color: rgba(0, 0, 0, 0.85);
+  color: #000000;
   padding: 0 12px;
-  height: 32px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 20px;
 }
 
 .auth-button.ant-btn:hover {
-  color: #1890ff;
-  background: rgba(24, 144, 255, 0.1);
+  color: #000000;
+  background: rgba(24, 144, 255, 0.2);
+  border-color: #1890ff;
 }
 
 /* Стили профиля пользователя */
@@ -80,33 +118,68 @@
   padding: 4px 12px;
   border-radius: 4px;
   transition: all 0.3s;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .profile-dropdown:hover {
-  background-color: rgba(0, 0, 0, 0.025);
+  background-color: rgba(255, 255, 255, 0.2);
+  font-size: 18px;
+  border-color: #000000;
 }
 
 .user-avatar {
   margin-right: 8px;
-  background-color: #1890ff;
+  background-color: #000000;
   cursor: pointer;
 }
 
 .user-name {
-  color: rgba(0, 0, 0, 0.85);
+  color: #000000;
   margin-left: 8px;
-  font-size: 14px;
-  max-width: 150px;
+  font-size: 22px;
+  max-width: 250px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 
 /* Стили основного контента */
 .main-content {
   padding: 24px 50px;
   max-width: 1600px;
   margin: 0 auto;
+}
+
+.user-dropdown-menu {
+  font-size: 18px !important;
+}
+
+.user-dropdown-menu .ant-dropdown-menu-item {
+  font-size: 18px !important;
+  padding: 4px 8px !important;
+}
+
+.city-dropdown-menu {
+  font-size: 16px !important;
+  min-width: 200px !important;
+}
+
+.city-dropdown-menu .ant-dropdown-menu-item {
+  font-size: 16px !important;
+  padding: 4px 16px !important;
+}
+
+.city-dropdown-menu .ant-dropdown-menu-item:hover {
+  background-color: #f5f5f5 !important;
+}
+
+.city-button {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* Стили поиска */
@@ -118,15 +191,16 @@
 }
 
 .search-input.ant-input {
-  width: 80%;
+  width: 600px; 
   height: 48px;
   border-radius: 4px 0 0 4px;
   border-right: none;
+  font-size: 18px;
 }
 
 .search-input.ant-input:hover,
 .search-input.ant-input:focus {
-  border-color: #1890ff;
+  border-color: #000000;
 }
 
 .search-button.ant-btn {
@@ -134,7 +208,16 @@
   border-radius: 0 4px 4px 0;
   padding: 0 24px;
   font-weight: 500;
+  font-size: 18px;
+  background-color: #000000; 
+  color: #ffffff; 
+  border-color: #000000; 
 }
+
+.search-button.ant-btn:hover {
+  background-color: #333333; 
+  border-color: #333333;
+  color: #ffffff;}
 
 /* Стили категорий */
 .categories-container {
@@ -147,14 +230,14 @@
 
 .category-button.ant-btn {
   font-weight: 600 !important;
-  font-size: 16px;
+  font-size: 22px;
   padding: 8px 16px;
   height: auto;
   color: rgba(0, 0, 0, 0.85);
 }
 
 .category-button.ant-btn:hover {
-  color: #1890ff !important;
+  color: #000000 !important;
   background: rgba(24, 144, 255, 0.1) !important;
 }
 
@@ -174,7 +257,7 @@
 
 .image-card.ant-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 410px;
   height: 320px;
   border-radius: 8px;
   overflow: hidden;
@@ -233,7 +316,7 @@
 }
 
 .image-placeholder-text {
-  margin-top: 12px;
+  margin-top: px;
 }
 
 /* Стили для контента карточки */
@@ -246,7 +329,7 @@
 }
 
 .image-card .ant-card-meta-title {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 600;
   margin-bottom: 8px;
   color: rgba(0, 0, 0, 0.85);
@@ -257,7 +340,7 @@
 
 .image-card .ant-card-meta-description {
   color: rgba(0, 0, 0, 0.65);
-  font-size: 14px;
+  font-size: 18px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -290,7 +373,7 @@
 
 .organization-card {
   width: 100%;
-  max-width: 800px;
+  max-width: 3000px !important;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -341,17 +424,24 @@
 }
 
 .organization-content {
-  padding: 24px;
+  padding: 24px !important;
+  font-size: 20px !important;
   flex: 1;
   display: flex;
   flex-direction: column;
 }
-
+.organization-name{
+  display: flex;
+  align-items: center;
+  font-size: 28px !important;
+  margin-bottom: 10px !important;
+}
 .organization-title {
   display: flex;
+  font-size: 30px !important;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px !important;
 }
 
 .organization-title h3 {
@@ -363,18 +453,30 @@
 .organization-address {
   display: flex;
   align-items: center;
-  margin-bottom: 12px;
+  font-size: 20px !important;
+  margin-bottom: 10px;
   color: #666;
 }
 
 .organization-rating {
   display: flex;
+  font-size: 20px !important;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .organization-button {
   margin-top: auto;
+}
+.rating-text{
+  font-size: 18px !important;
+}
+
+.details-button{
+  background-color: #000000 !important;
+  height: 40px; 
+  width:250px;
+  font-size: 20PX !important;
 }
 
 /* Стили для рейтинга */
@@ -398,7 +500,7 @@
 .organizations-list-title {
   text-align: center;
   margin-bottom: 24px;
-  font-size: 24px;
+  font-size: 30px !important;
   font-weight: 600;
   color: rgba(0, 0, 0, 0.85);
 }
@@ -415,17 +517,20 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 16px;
+  
 }
 
 .organization-details-layout {
   display: flex;
   gap: 24px;
   margin-top: 24px;
+  
 }
 
 .organization-info-column {
   flex: 1;
   min-width: 0;
+  
 }
 
 .organization-reviews-column {
@@ -437,6 +542,7 @@
 .organization-details-card {
   width: 100%;
   margin-bottom: 24px;
+  right: 300px;
 }
 
 .organization-image-container {
@@ -466,46 +572,109 @@
   background-color: #d9d9d9;
 }
 
-/* Reviews Card */
+/* Карточка отзывов */
 .reviews-card {
   height: 100%;
+  width: 1050px;
+  right: 250px;
 }
 
+/* Заголовок блока отзывов */
 .reviews-header {
+  width: 1000px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-size: 12px !important; 
   margin-bottom: 24px;
 }
 
-.reviews-list {
+
+
+/* Контейнер загрузки */
+.reviews-loading-container {
+  width: 1000px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+  min-height: 200px;
+}
+
+/* Контейнер списка отзывов */
+.reviews-list-container {
+  width: 1000px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
+  width: 100%;
 }
 
-.review-item {
-  padding: 16px;
-  border: 1px solid #f0f0f0;
-  border-radius: 8px;
-  background: #fff;
+/* Карточка отзыва */
+.review-card {
+  width: 1000px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.review-header {
+.review-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Шапка карточки */
+.review-card-header {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
-.review-author {
+/* Аватар пользователя */
+.review-user-avatar {
+  background-color: #000000;
+  font-size: 30px !important;
+  flex-shrink: 0;
+}
+
+/* Мета-информация */
+.review-meta-info {
   flex: 1;
+  min-width: 0;
 }
 
-.review-content {
-  padding-left: 40px;
+/* Заголовок отзыва */
+.review-card-title {
+  font-size: 22px !important;
+  font-weight: 600 !important;
+  color: #1d1d1d !important;
+  margin-bottom: 4px !important;
+  display: block;
 }
 
+/* Дата отзыва */
+.review-post-date {
+  font-size: 18px !important;
+  color: #8c8c8c !important;
+  display: block;
+}
+
+/* Звезды рейтинга */
+.review-rating-stars {
+  font-size: 16px !important;
+  color: #faad14 !important;
+  margin-left: auto;
+}
+
+.review-text-content {
+  font-size: 20px !important;
+}
+.back-button{
+  font-size: 25px !important;
+}
 /* Адаптивные стили */
 @media (max-width: 1200px) {
   .card-col {
@@ -541,12 +710,24 @@
 }
 
 @media (max-width: 768px) {
-  .header-left {
-    gap: 12px;
+  .header-content {
+    flex-direction: column;
+    height: auto;
+    padding: 12px 0;
+  }
+  
+  .header-center {
+    position: static;
+    transform: none;
+    margin-bottom: 12px;
+  }
+  
+  .header-right {
+    margin-left: 0;
   }
   
   .page-title {
-    font-size: 18px !important;
+    font-size: 24px !important;
   }
   
   .main-content {
@@ -623,10 +804,12 @@
   
   .reviews-header .ant-btn {
     width: 100%;
+    
   }
   
   .review-header {
     flex-wrap: wrap;
+    
   }
   
   .review-content {
@@ -635,21 +818,12 @@
 }
 
 @media (max-width: 480px) {
-  .header-content {
-    flex-wrap: wrap;
-    height: auto;
-    padding: 12px 0;
+  .header-center {
+    margin-bottom: 8px;
   }
   
-  .header-left {
-    width: 100%;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-  
-  .header-actions {
-    width: 100%;
-    justify-content: flex-end;
+  .page-title {
+    font-size: 20px !important;
   }
   
   .image-card.ant-card {
