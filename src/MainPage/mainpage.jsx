@@ -36,9 +36,10 @@ import { ReviewForm } from '../ReviewForm/ReviewForm';
 import { OrganizationService } from '../api/organizationService';
 import { LoginForm } from '../LoginForm/LoginForm';
 import { RegisterForm } from '../RegisterForm/RegisterForm';
-import { auth,loginUser } from '../firebase/firebase';
+import { auth, loginUser } from '../firebase/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { useAuth } from '../firebase/useAuth'; // Добавляем импорт
+import { useAuth } from '../firebase/useAuth';
+import { apiRequest } from '../api/api';
 import './MainPage.css';
 
 const { Header, Content } = Layout;
@@ -55,6 +56,131 @@ const categories = [
 
 const CARD_HEIGHT = 320;
 const IMAGE_HEIGHT = 240;
+
+const UserReviews = ({ visible }) => {
+  const [reviews, setReviews] = useState([]);
+  const [organizations, setOrganizations] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [loadingOrganizations, setLoadingOrganizations] = useState(false);
+
+  const fetchOrganizationData = async (id) => {
+    try {
+      const data = await apiRequest('TOP_PLACES', {
+        id,
+        criteria: "POPULARITY",
+        direction: "ASC"
+      });
+      return data[0] || null;
+    } catch (error) {
+      console.error(`Error fetching organization ${id}:`, error);
+      return null;
+    }
+  };
+
+  const loadOrganizationsData = async (reviewsData) => {
+    setLoadingOrganizations(true);
+    try {
+      const orgsData = {};
+      
+      const orgsPromises = reviewsData.map(review => 
+        fetchOrganizationData(review.organizationId)
+      );
+      
+      const orgsResults = await Promise.all(orgsPromises);
+      
+      reviewsData.forEach((review, index) => {
+        if (orgsResults[index]) {
+          orgsData[review.organizationId] = orgsResults[index];
+        }
+      });
+      
+      setOrganizations(orgsData);
+    } catch (error) {
+      console.error('Error loading organizations:', error);
+    } finally {
+      setLoadingOrganizations(false);
+    }
+  };
+
+  const fetchUserReviews = async () => {
+    try {
+      setLoading(true);
+      const data = await apiRequest('USER_REVIEWS');
+      setReviews(data);
+      
+      if (data && data.length > 0) {
+        await loadOrganizationsData(data);
+      }
+    } catch (error) {
+      console.error('Error fetching user reviews:', error);
+      message.error('Не удалось загрузить отзывы');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (visible) {
+      fetchUserReviews();
+    }
+  }, [visible]);
+
+  if (!visible) return null;
+
+  return (
+    <Card 
+      title="Мои отзывы" 
+      style={{ width: '100%', marginTop: 24 }}
+    >
+      {loading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
+          <Spin size="large" />
+        </div>
+      ) : (
+        <List
+          itemLayout="vertical"
+          dataSource={reviews}
+          renderItem={review => (
+            <List.Item key={review.id}>
+              <List.Item.Meta
+                avatar={<Avatar icon={<UserOutlined />} />}
+                title={<Text strong>{review.title}</Text>}
+                description={
+                  <>
+                    <Rate disabled value={review.rating} style={{ fontSize: 14 }} />
+                    <Text type="secondary" style={{ marginLeft: 8 }}>
+                      {new Date(review.createdAt).toLocaleDateString()}
+                    </Text>
+                    {organizations[review.organizationId] && (
+                      <div style={{ marginTop: 8 }}>
+                        <Text strong>
+                          {organizations[review.organizationId].name}
+                        </Text>
+                        <Text type="secondary" style={{ marginLeft: 8 }}>
+                          ({organizations[review.organizationId].address})
+                        </Text>
+                      </div>
+                    )}
+                  </>
+                }
+              />
+              <Text>{review.content}</Text>
+            </List.Item>
+          )}
+        />
+      )}
+      {loadingOrganizations && (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: 16 }}>
+          <Spin>
+            <div style={{ textAlign: 'center' }}>
+              <div>Загрузка данных об организациях...</div>
+            </div>
+          </Spin>
+        </div>
+      )}
+    </Card>
+  );
+};
 
 export const MainPage = () => {
   const { user, loading: authLoading, getAuthData } = useAuth();
@@ -81,6 +207,10 @@ export const MainPage = () => {
   const [reviews, setReviews] = useState([]);
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
+  const [showUserReviews, setShowUserReviews] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     const loadCities = async () => {
@@ -169,12 +299,40 @@ export const MainPage = () => {
     }
   };
 
+  const handleSearch = async () => {
+    if (!searchQuery.trim() || !selectedCity) return;
+    
+    setIsSearching(true);
+    try {
+      const data = await apiRequest('TOP_PLACES', {
+        cityId: parseInt(selectedCity.key),
+        criteria: "POPULARITY"
+      });
+      
+      const filteredResults = data.filter(org => 
+        org.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      
+      setSearchResults(filteredResults);
+      setActiveList('search');
+      setOrganizationsList(filteredResults);
+      setSelectedOrganization(null);
+      setShowUserReviews(false);
+    } catch (error) {
+      console.error('Search error:', error);
+      message.error('Не удалось выполнить поиск');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   const loadOrganizations = async (type) => {
     if (!selectedCity) return;
     
     setLoadingOrganizations(true);
     setActiveList(type);
     setSelectedOrganization(null);
+    setShowUserReviews(false);
     
     try {
       let data;
@@ -221,6 +379,7 @@ export const MainPage = () => {
 
   const handleOrganizationClick = async (organization) => {
     setSelectedOrganization(organization);
+    setShowUserReviews(false);
     await loadOrganizationReviews(organization.id);
   };
 
@@ -282,16 +441,29 @@ export const MainPage = () => {
     setReviewModalVisible(false);
   };
 
+  const resetToMainPage = () => {
+    setActiveList(null);
+    setOrganizationsList([]);
+    setSelectedOrganization(null);
+    setReviews([]);
+    setShowUserReviews(false);
+    setSearchQuery('');
+    setSearchResults([]);
+  };
+
   const profileMenuItems = [
     {
-      key: 'profile',
-      icon: <UserOutlined />,
-      label: 'Профиль',
-    },
-    {
-      key: 'settings',
-      icon: <EnvironmentOutlined />,
-      label: 'Настройки',
+      key: 'reviews',
+      icon: <FormOutlined />,
+      label: 'Мои отзывы',
+      onClick: () => {
+        setShowUserReviews(true);
+        setActiveList(null);
+        setOrganizationsList([]);
+        setSelectedOrganization(null);
+        setSearchQuery('');
+        setSearchResults([]);
+      }
     },
     {
       type: 'divider',
@@ -310,19 +482,22 @@ export const MainPage = () => {
       title: 'Лучшие рестораны', 
       description: 'Рейтинг 2025',
       imageUrl: topPlaces.restaurant?.imageUrl,
-      loading: loadingCards.restaurant
+      loading: loadingCards.restaurant,
+      onClick: () => loadOrganizations('restaurants')
     },
     { 
       title: 'Популярные кинотеатры',
       description: 'Часто посещаемые', 
       imageUrl: topPlaces.cinema?.imageUrl,
-      loading: loadingCards.cinema
+      loading: loadingCards.cinema,
+      onClick: () => loadOrganizations('cinemas')
     },
     { 
       title: 'Топ музеев', 
       description: 'Лучшие музеи города',
       imageUrl: topPlaces.museum?.imageUrl,
-      loading: loadingCards.museum
+      loading: loadingCards.museum,
+      onClick: () => loadOrganizations('museums')
     }
   ];
 
@@ -459,7 +634,14 @@ export const MainPage = () => {
       <Header className="main-header">
         <div className="header-content">
           <div className="header-left">
-            <Title level={2} className="page-title">Chokak 0_o</Title>
+            <Title 
+              level={2} 
+              className="page-title"
+              onClick={resetToMainPage}
+              style={{ cursor: 'pointer' }}
+            >
+              Chokak 0_o
+            </Title>
             
             {loading ? (
               <Spin size="small" />
@@ -540,8 +722,18 @@ export const MainPage = () => {
                 size="large"
                 placeholder="Поиск..." 
                 prefix={<SearchOutlined />}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onPressEnter={handleSearch}
               />
-              <Button className="search-button" type="primary" size="large" icon={<SearchOutlined />}>
+              <Button 
+                className="search-button" 
+                type="primary" 
+                size="large" 
+                icon={<SearchOutlined />}
+                onClick={handleSearch}
+                loading={isSearching}
+              >
                 Поиск
               </Button>
             </div>
@@ -578,7 +770,90 @@ export const MainPage = () => {
               ))}
             </Space>
             
-            {loadingOrganizations ? (
+            {showUserReviews ? (
+              <UserReviews visible={showUserReviews} />
+            ) : activeList === 'search' ? (
+              <div className="organizations-list-container" style={{ marginTop: 24 }}>
+                <Title level={3} style={{ textAlign: 'center', marginBottom: 24 }}>
+                  Результаты поиска "{searchQuery}" в {selectedCity?.label}
+                </Title>
+                
+                {searchResults.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
+                    {searchResults.map(item => (
+                      <Card
+                        key={item.id}
+                        hoverable
+                        className="organization-card"
+                        style={{ width: '100%', maxWidth: '800px' }}
+                        styles={{
+                          body: { padding: 24 }
+                        }}
+                        onClick={() => handleOrganizationClick(item)}
+                        cover={
+                          <div className="organization-image-container">
+                            {item.imageUrl ? (
+                              <img 
+                                alt={item.name} 
+                                src={item.imageUrl} 
+                                className="organization-image"
+                              />
+                            ) : (
+                              <div className="organization-image-placeholder">
+                                <div className="organization-image-placeholder-icon"></div>
+                              </div>
+                            )}
+                          </div>
+                        }
+                      >
+                        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <Title level={4} style={{ margin: 0 }}>{item.name}</Title>
+                              {item.rating > 4.5 && (
+                                <Tag icon={<StarFilled />} color="gold">Топ</Tag>
+                              )}
+                            </div>
+                            
+                            <div style={{ margin: '12px 0', display: 'flex', alignItems: 'center' }}>
+                              <EnvironmentOutlined style={{ marginRight: 8, color: '#888' }} />
+                              <Text type="secondary">{item.address}</Text>
+                            </div>
+                            
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                              <Rate 
+                                disabled 
+                                allowHalf 
+                                defaultValue={item.rating} 
+                                style={{ fontSize: 16 }} 
+                              />
+                              <Text style={{ marginLeft: 8 }}>
+                                {item.rating.toFixed(1)} ({item.reviewCount} отзывов)
+                              </Text>
+                            </div>
+                          </div>
+                          
+                          <Button 
+                            type="primary" 
+                            style={{ marginTop: 16, width: '100%' }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOrganizationClick(item);
+                            }}
+                          >
+                            Подробнее
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                    <Text type="secondary">Ничего не найдено</Text>
+                  </div>
+                )}
+              </div>
+            ) : loadingOrganizations ? (
               <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
                 <Spin size="large" />
               </div>
@@ -665,6 +940,7 @@ export const MainPage = () => {
                       className="image-card"
                       hoverable
                       style={{ height: CARD_HEIGHT }}
+                      onClick={card.onClick}
                       cover={
                         card.loading ? (
                           <div 
@@ -725,7 +1001,6 @@ export const MainPage = () => {
             organizationId={selectedOrganization.id}
             userId={user?.uid}
             onSuccess={(result) => {
-              // Обновляем список отзывов после успешного добавления
               loadOrganizationReviews(selectedOrganization.id);
             }}
           />
