@@ -36,9 +36,10 @@ import { ReviewForm } from '../ReviewForm/ReviewForm';
 import { OrganizationService } from '../api/organizationService';
 import { LoginForm } from '../LoginForm/LoginForm';
 import { RegisterForm } from '../RegisterForm/RegisterForm';
-import { auth,loginUser } from '../firebase/firebase';
+import { auth, loginUser } from '../firebase/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { useAuth } from '../firebase/useAuth'; // Добавляем импорт
+import { useAuth } from '../firebase/useAuth';
+import { apiRequest } from '../api/api';
 import './MainPage.css';
 
 const { Header, Content } = Layout;
@@ -55,6 +56,129 @@ const categories = [
 
 const CARD_HEIGHT = 320;
 const IMAGE_HEIGHT = 240;
+
+const UserReviews = ({ visible }) => {
+  const [reviews, setReviews] = useState([]);
+  const [organizations, setOrganizations] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [loadingOrganizations, setLoadingOrganizations] = useState(false);
+
+  const fetchOrganizationData = async (id) => {
+    try {
+      const data = await apiRequest('TOP_PLACES', {
+        id,
+        criteria: "POPULARITY",
+        direction: "ASC"
+      });
+      return data[0] || null;
+    } catch (error) {
+      console.error(`Error fetching organization ${id}:`, error);
+      return null;
+    }
+  };
+
+  const loadOrganizationsData = async (reviewsData) => {
+    setLoadingOrganizations(true);
+    try {
+      const orgsData = {};
+      
+      const orgsPromises = reviewsData.map(review => 
+        fetchOrganizationData(review.organizationId)
+      );
+      
+      const orgsResults = await Promise.all(orgsPromises);
+      
+      reviewsData.forEach((review, index) => {
+        if (orgsResults[index]) {
+          orgsData[review.organizationId] = orgsResults[index];
+        }
+      });
+      
+      setOrganizations(orgsData);
+    } catch (error) {
+      console.error('Error loading organizations:', error);
+    } finally {
+      setLoadingOrganizations(false);
+    }
+  };
+
+  const fetchUserReviews = async () => {
+    try {
+      setLoading(true);
+      const data = await apiRequest('USER_REVIEWS');
+      setReviews(data);
+      
+      if (data && data.length > 0) {
+        await loadOrganizationsData(data);
+      }
+    } catch (error) {
+      console.error('Error fetching user reviews:', error);
+      message.error('Не удалось загрузить отзывы');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (visible) {
+      fetchUserReviews();
+    }
+  }, [visible]);
+
+  if (!visible) return null;
+
+  return (
+    <Card className="user-reviews-card">
+      {loading ? (
+        <div className="loading-container">
+          <Spin size="large" />
+        </div>
+      ) : (
+        <List
+          className="reviews-list-container"
+          itemLayout="vertical"
+          dataSource={reviews}
+          renderItem={review => (
+            <List.Item key={review.id} className="review-list-item">
+              <List.Item.Meta
+                avatar={<Avatar icon={<UserOutlined />} />}
+                title={<Text strong>{review.title}</Text>}
+                description={
+                  <>
+                    <Rate disabled value={review.rating} className="review-rate" />
+                    <Text type="secondary" className="review-date">
+                      {new Date(review.createdAt).toLocaleDateString()}
+                    </Text>
+                    {organizations[review.organizationId] && (
+                      <div className="review-organization">
+                        <Text strong>
+                          {organizations[review.organizationId].name}
+                        </Text>
+                        <Text type="secondary" className="organization-address">
+                          ({organizations[review.organizationId].address})
+                        </Text>
+                      </div>
+                    )}
+                  </>
+                }
+              />
+              <Text className="review-content">{review.content}</Text>
+            </List.Item>
+          )}
+        />
+      )}
+      {loadingOrganizations && (
+        <div className="loading-organizations">
+          <Spin>
+            <div className="loading-text">
+              <div>Загрузка данных об организациях...</div>
+            </div>
+          </Spin>
+        </div>
+      )}
+    </Card>
+  );
+};
 
 export const MainPage = () => {
   const { user, loading: authLoading, getAuthData } = useAuth();
@@ -81,6 +205,10 @@ export const MainPage = () => {
   const [reviews, setReviews] = useState([]);
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
+  const [showUserReviews, setShowUserReviews] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     const loadCities = async () => {
@@ -169,12 +297,40 @@ export const MainPage = () => {
     }
   };
 
+  const handleSearch = async () => {
+    if (!searchQuery.trim() || !selectedCity) return;
+    
+    setIsSearching(true);
+    try {
+      const data = await apiRequest('TOP_PLACES', {
+        cityId: parseInt(selectedCity.key),
+        criteria: "POPULARITY"
+      });
+      
+      const filteredResults = data.filter(org => 
+        org.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      
+      setSearchResults(filteredResults);
+      setActiveList('search');
+      setOrganizationsList(filteredResults);
+      setSelectedOrganization(null);
+      setShowUserReviews(false);
+    } catch (error) {
+      console.error('Search error:', error);
+      message.error('Не удалось выполнить поиск');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   const loadOrganizations = async (type) => {
     if (!selectedCity) return;
     
     setLoadingOrganizations(true);
     setActiveList(type);
     setSelectedOrganization(null);
+    setShowUserReviews(false);
     
     try {
       let data;
@@ -221,6 +377,7 @@ export const MainPage = () => {
 
   const handleOrganizationClick = async (organization) => {
     setSelectedOrganization(organization);
+    setShowUserReviews(false);
     await loadOrganizationReviews(organization.id);
   };
 
@@ -282,16 +439,29 @@ export const MainPage = () => {
     setReviewModalVisible(false);
   };
 
+  const resetToMainPage = () => {
+    setActiveList(null);
+    setOrganizationsList([]);
+    setSelectedOrganization(null);
+    setReviews([]);
+    setShowUserReviews(false);
+    setSearchQuery('');
+    setSearchResults([]);
+  };
+
   const profileMenuItems = [
     {
-      key: 'profile',
-      icon: <UserOutlined />,
-      label: 'Профиль',
-    },
-    {
-      key: 'settings',
-      icon: <EnvironmentOutlined />,
-      label: 'Настройки',
+      key: 'reviews',
+      icon: <FormOutlined />,
+      label: 'Мои отзывы',
+      onClick: () => {
+        setShowUserReviews(true);
+        setActiveList(null);
+        setOrganizationsList([]);
+        setSelectedOrganization(null);
+        setSearchQuery('');
+        setSearchResults([]);
+      }
     },
     {
       type: 'divider',
@@ -310,19 +480,22 @@ export const MainPage = () => {
       title: 'Лучшие рестораны', 
       description: 'Рейтинг 2025',
       imageUrl: topPlaces.restaurant?.imageUrl,
-      loading: loadingCards.restaurant
+      loading: loadingCards.restaurant,
+      onClick: () => loadOrganizations('restaurants')
     },
     { 
       title: 'Популярные кинотеатры',
       description: 'Часто посещаемые', 
       imageUrl: topPlaces.cinema?.imageUrl,
-      loading: loadingCards.cinema
+      loading: loadingCards.cinema,
+      onClick: () => loadOrganizations('cinemas')
     },
     { 
       title: 'Топ музеев', 
       description: 'Лучшие музеи города',
       imageUrl: topPlaces.museum?.imageUrl,
-      loading: loadingCards.museum
+      loading: loadingCards.museum,
+      onClick: () => loadOrganizations('museums')
     }
   ];
 
@@ -335,7 +508,7 @@ export const MainPage = () => {
           type="text" 
           icon={<ArrowLeftOutlined />} 
           onClick={handleBackToList}
-          style={{ marginBottom: 16 }}
+          className="back-button"
         >
           Назад к списку
         </Button>
@@ -360,32 +533,36 @@ export const MainPage = () => {
                 </div>
               }
             >
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Title level={3} style={{ margin: 0 }}>{selectedOrganization.name}</Title>
+              <div className="organization-details-content">
+                <div className="organization-header">
+                  <Title level={3} className="organization-name">
+                    {selectedOrganization.name}
+                  </Title>
                   {selectedOrganization.rating > 4.5 && (
                     <Tag icon={<StarFilled />} color="gold">Топ</Tag>
                   )}
                 </div>
 
-                <div style={{ margin: '12px 0', display: 'flex', alignItems: 'center' }}>
-                  <EnvironmentOutlined style={{ marginRight: 8, color: '#888' }} />
-                  <Text type="secondary">{selectedOrganization.address}</Text>
+                <div className="organization-address-container">
+                  <EnvironmentOutlined className="address-icon" />
+                  <Text type="secondary" className="organization-address">
+                    {selectedOrganization.address}
+                  </Text>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+                <div className="organization-rating-container">
                   <Rate 
                     disabled 
                     allowHalf 
                     defaultValue={selectedOrganization.rating} 
-                    style={{ fontSize: 16 }} 
+                    className="organization-rating" 
                   />
-                  <Text style={{ marginLeft: 8 }}>
+                  <Text className="rating-text">
                     {selectedOrganization.rating.toFixed(1)} ({selectedOrganization.reviewCount} отзывов)
                   </Text>
                 </div>
 
-                <Paragraph>
+                <Paragraph className="organization-description">
                   {selectedOrganization.description || 'Описание отсутствует'}
                 </Paragraph>
               </div>
@@ -395,12 +572,13 @@ export const MainPage = () => {
           <div className="organization-reviews-column">
             <Card className="reviews-card">
               <div className="reviews-header">
-                <Title level={4} style={{ margin: 0 }}>Отзывы</Title>
+                <Title level={4} className="reviews-title">Отзывы</Title>
                 {user && (
                   <Button 
                     type="primary" 
                     icon={<FormOutlined />}
                     onClick={showReviewModal}
+                    className="details-button"
                   >
                     Добавить отзыв
                   </Button>
@@ -408,18 +586,18 @@ export const MainPage = () => {
               </div>
 
               {loadingReviews ? (
-                <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
+                <div className="reviews-loading-container">
                   <Spin size="large" />
                 </div>
               ) : (
-                <div className="reviews-list">
+                <div className="reviews-list-container">
                   {reviews.map(review => (
-                    <div key={review.id} className="review-item">
-                      <div className="review-header">
-                        <Avatar icon={<UserOutlined />} />
-                        <div className="review-author">
-                          <Text strong>{review.title}</Text>
-                          <Text type="secondary">
+                    <div key={review.id} className="review-card">
+                      <div className="review-card-header">
+                        <Avatar icon={<UserOutlined />} className="review-user-avatar" />
+                        <div className="review-meta-info">
+                          <Text strong className="review-card-title">{review.title}</Text>
+                          <Text type="secondary" className="review-post-date">
                             {new Date(review.createdAt).toLocaleDateString()}
                           </Text>
                         </div>
@@ -428,17 +606,17 @@ export const MainPage = () => {
                             disabled 
                             value={review.rating} 
                             character={<StarOutlined />} 
-                            style={{ fontSize: 14 }} 
+                            className="review-rating-stars" 
                           />
                         )}
                       </div>
-                      <div className="review-content">
-                        <Text>{review.content}</Text>
+                      <div className="review-card-body">
+                        <Text className="review-text-content">{review.content}</Text>
                       </div>
                     </div>
                   ))}
                 </div>
-              )}
+              )}  
             </Card>
           </div>
         </div>
@@ -448,7 +626,7 @@ export const MainPage = () => {
 
   if (authLoading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div className="auth-loading">
         <Spin size="large" />
       </div>
     );
@@ -458,11 +636,20 @@ export const MainPage = () => {
     <Layout className="main-layout">
       <Header className="main-header">
         <div className="header-content">
-          <div className="header-left">
-            <Title level={2} className="page-title">Chokak 0_o</Title>
-            
+          <div className="header-center">
+            <Title 
+              level={1} 
+              className="page-title"
+              onClick={resetToMainPage}
+              style={{ cursor: 'pointer' }}
+            >
+              Chokak 0_o
+            </Title>
+          </div>
+          
+          <div className="header-right">
             {loading ? (
-              <Spin size="small" />
+              <Spin size="small" className="city-loading" />
             ) : error ? (
               <Tooltip title={error}>
                 <Button icon={<EnvironmentOutlined />} className="city-button" danger>
@@ -471,6 +658,7 @@ export const MainPage = () => {
               </Tooltip>
             ) : (
               <Dropdown
+                overlayClassName="city-dropdown-menu"
                 menu={{
                   items: cities,
                   onClick: handleCitySelect,
@@ -484,48 +672,49 @@ export const MainPage = () => {
                 </Button>
               </Dropdown>
             )}
+            
+            <Space className="header-actions">
+              {user ? (
+                <Dropdown
+                  overlayClassName="user-dropdown-menu"
+                  menu={{ items: profileMenuItems }}
+                  trigger={['click']}
+                  placement="bottomRight"
+                >
+                  <div className="profile-dropdown">
+                    <Avatar 
+                      src={user.photoURL} 
+                      icon={!user.photoURL && <UserOutlined />}
+                      className="user-avatar"
+                    />
+                    <span className="user-name">
+                      {user.displayName || (user.email ? user.email.split('@')[0] : 'Профиль')}
+                    </span>
+                    <DownOutlined className="dropdown-icon" />
+                  </div>
+                </Dropdown>
+              ) : (
+                <>
+                  <Button 
+                    type="text" 
+                    icon={<UserOutlined />} 
+                    className="auth-button"
+                    onClick={showRegister}
+                  >
+                    Регистрация
+                  </Button>
+                  <Button 
+                    type="text" 
+                    icon={<LoginOutlined />} 
+                    className="auth-button"
+                    onClick={showLogin}
+                  >
+                    Вход
+                  </Button>
+                </>
+              )}
+            </Space>
           </div>
-          
-          <Space className="header-actions">
-            {user ? (
-              <Dropdown
-                menu={{ items: profileMenuItems }}
-                trigger={['click']}
-                placement="bottomRight"
-              >
-                <div className="profile-dropdown">
-                  <Avatar 
-                    src={user.photoURL} 
-                    icon={!user.photoURL && <UserOutlined />}
-                    className="user-avatar"
-                  />
-                  <span className="user-name">
-                    {user.displayName || (user.email ? user.email.split('@')[0] : 'Профиль')}
-                  </span>
-                  <DownOutlined style={{ color: '#fff', marginLeft: 8 }} />
-                </div>
-              </Dropdown>
-            ) : (
-              <>
-                <Button 
-                  type="text" 
-                  icon={<UserOutlined />} 
-                  className="auth-button"
-                  onClick={showRegister}
-                >
-                  Регистрация
-                </Button>
-                <Button 
-                  type="text" 
-                  icon={<LoginOutlined />} 
-                  className="auth-button"
-                  onClick={showLogin}
-                >
-                  Вход
-                </Button>
-              </>
-            )}
-          </Space>
         </div>
       </Header>
       
@@ -540,8 +729,18 @@ export const MainPage = () => {
                 size="large"
                 placeholder="Поиск..." 
                 prefix={<SearchOutlined />}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onPressEnter={handleSearch}
               />
-              <Button className="search-button" type="primary" size="large" icon={<SearchOutlined />}>
+              <Button 
+                className="search-button" 
+                type="primary" 
+                size="large" 
+                icon={<SearchOutlined />}
+                onClick={handleSearch}
+                loading={isSearching}
+              >
                 Поиск
               </Button>
             </div>
@@ -578,26 +777,103 @@ export const MainPage = () => {
               ))}
             </Space>
             
-            {loadingOrganizations ? (
-              <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
+            {showUserReviews ? (
+              <UserReviews visible={showUserReviews} />
+            ) : activeList === 'search' ? (
+              <div className="organizations-list-container">
+                <Title level={3} className="organizations-list-title">
+                  Результаты поиска "{searchQuery}" в {selectedCity?.label}
+                </Title>
+                
+                {searchResults.length > 0 ? (
+                  <div className="organizations-list">
+                    {searchResults.map(item => (
+                      <Card
+                        key={item.id}
+                        hoverable
+                        className="organization-card"
+                        onClick={() => handleOrganizationClick(item)}
+                        cover={
+                          <div className="organization-image-container">
+                            {item.imageUrl ? (
+                              <img 
+                                alt={item.name} 
+                                src={item.imageUrl} 
+                                className="organization-image"
+                              />
+                            ) : (
+                              <div className="organization-image-placeholder">
+                                <div className="organization-image-placeholder-icon"></div>
+                              </div>
+                            )}
+                          </div>
+                        }
+                      >
+                        <div className="organization-content">
+                          <div className="organization-header">
+                            <Title level={4} className="organization-name">
+                              {item.name}
+                            </Title>
+                            {item.rating > 4.5 && (
+                              <Tag icon={<StarFilled />} color="gold">Топ</Tag>
+                            )}
+                          </div>
+                          
+                          <div className="organization-address-container">
+                            <EnvironmentOutlined className="address-icon" />
+                            <Text type="secondary" className="organization-address">
+                              {item.address}
+                            </Text>
+                          </div>
+                          
+                          <div className="organization-rating-container">
+                            <Rate 
+                              disabled 
+                              allowHalf 
+                              defaultValue={item.rating} 
+                              className="organization-rating" 
+                            />
+                            <Text className="rating-text">
+                              {item.rating.toFixed(1)} ({item.reviewCount} отзывов)
+                            </Text>
+                          </div>
+                          
+                          <Button 
+                            type="primary" 
+                            className="details-button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOrganizationClick(item);
+                            }}
+                          >
+                            Подробнее
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="no-results">
+                    <Text type="secondary">Ничего не найдено</Text>
+                  </div>
+                )}
+              </div>
+            ) : loadingOrganizations ? (
+              <div className="organizations-loading">
                 <Spin size="large" />
               </div>
             ) : organizationsList.length > 0 ? (
-              <div className="organizations-list-container" style={{ marginTop: 24 }}>
-                <Title level={3} style={{ textAlign: 'center', marginBottom: 24 }}>
+              <div className="organizations-list-container">
+                <Title level={3} className="organizations-list-title">
                   {getOrganizationTypeName(activeList)} в {selectedCity?.label}
                 </Title>
                 
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
+                <div className="organizations-list">
                   {organizationsList.map(item => (
                     <Card
                       key={item.id}
                       hoverable
                       className="organization-card"
-                      style={{ width: '100%', maxWidth: '800px' }}
-                      styles={{
-                        body: { padding: 24 }
-                      }}
                       onClick={() => handleOrganizationClick(item)}
                       cover={
                         <div className="organization-image-container">
@@ -615,36 +891,38 @@ export const MainPage = () => {
                         </div>
                       }
                     >
-                      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Title level={4} style={{ margin: 0 }}>{item.name}</Title>
-                            {item.rating > 4.5 && (
-                              <Tag icon={<StarFilled />} color="gold">Топ</Tag>
-                            )}
-                          </div>
-                          
-                          <div style={{ margin: '12px 0', display: 'flex', alignItems: 'center' }}>
-                            <EnvironmentOutlined style={{ marginRight: 8, color: '#888' }} />
-                            <Text type="secondary">{item.address}</Text>
-                          </div>
-                          
-                          <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <Rate 
-                              disabled 
-                              allowHalf 
-                              defaultValue={item.rating} 
-                              style={{ fontSize: 16 }} 
-                            />
-                            <Text style={{ marginLeft: 8 }}>
-                              {item.rating.toFixed(1)} ({item.reviewCount} отзывов)
-                            </Text>
-                          </div>
+                      <div className="organization-content">
+                        <div className="organization-header">
+                          <Title level={4} className="organization-name">
+                            {item.name}
+                          </Title>
+                          {item.rating > 4.5 && (
+                            <Tag icon={<StarFilled />} color="gold">Топ</Tag>
+                          )}
+                        </div>
+                        
+                        <div className="organization-address-container">
+                          <EnvironmentOutlined className="address-icon" />
+                          <Text type="secondary" className="organization-address">
+                            {item.address}
+                          </Text>
+                        </div>
+                        
+                        <div className="organization-rating-container">
+                          <Rate 
+                            disabled 
+                            allowHalf 
+                            defaultValue={item.rating} 
+                            className="organization-rating" 
+                          />
+                          <Text className="rating-text">
+                            {item.rating.toFixed(1)} ({item.reviewCount} отзывов)
+                          </Text>
                         </div>
                         
                         <Button 
                           type="primary" 
-                          style={{ marginTop: 16, width: '100%' }}
+                          className="details-button"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleOrganizationClick(item);
@@ -664,20 +942,14 @@ export const MainPage = () => {
                     <Card
                       className="image-card"
                       hoverable
-                      style={{ height: CARD_HEIGHT }}
+                      onClick={card.onClick}
                       cover={
                         card.loading ? (
-                          <div 
-                            className="image-placeholder" 
-                            style={{ height: IMAGE_HEIGHT }}
-                          >
+                          <div className="image-placeholder">
                             <Spin size="large" />
                           </div>
                         ) : card.imageUrl ? (
-                          <div 
-                            className="image-container"
-                            style={{ height: IMAGE_HEIGHT }}
-                          >
+                          <div className="image-container">
                             <img 
                               alt={card.title} 
                               src={card.imageUrl}
@@ -685,10 +957,7 @@ export const MainPage = () => {
                             />
                           </div>
                         ) : (
-                          <div 
-                            className="image-placeholder" 
-                            style={{ height: IMAGE_HEIGHT }}
-                          >
+                          <div className="image-placeholder">
                             <div className="image-placeholder-text">Картинка {index + 1}</div>
                           </div>
                         )
@@ -725,7 +994,6 @@ export const MainPage = () => {
             organizationId={selectedOrganization.id}
             userId={user?.uid}
             onSuccess={(result) => {
-              // Обновляем список отзывов после успешного добавления
               loadOrganizationReviews(selectedOrganization.id);
             }}
           />

@@ -31,6 +31,15 @@ const API_CONFIG = {
         'X-User-Uid': localStorage.getItem('firebaseLocalId')
       },
       transform: data => data
+    },
+    USER_REVIEWS: {
+      path: '/users/me/reviews',
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('firebaseIdToken')}`,
+        'X-User-Uid': localStorage.getItem('firebaseLocalId')
+      },
+      transform: data => data
     }
   }
 };
@@ -39,16 +48,24 @@ export const getApiConfig = (endpointKey, data = null) => {
   const endpoint = API_CONFIG.ENDPOINTS[endpointKey];
   if (!endpoint) throw new Error(`Unknown endpoint: ${endpointKey}`);
   
-  // Получаем headers из эндпоинта (если они есть)
-  const endpointHeaders = typeof endpoint.headers === 'function' 
-    ? endpoint.headers()
-    : endpoint.headers || {};
+  let endpointHeaders = {};
+  
+  if (typeof endpoint.headers === 'function') {
+    endpointHeaders = endpoint.headers();
+  } else if (endpoint.headers) {
+    endpointHeaders = Object.fromEntries(
+      Object.entries(endpoint.headers).map(([key, value]) => {
+        if (typeof value === 'function') return [key, value()];
+        return [key, value];
+      })
+    );
+  }
 
   return {
     method: endpoint.method,
     headers: {
       ...API_CONFIG.DEFAULT_HEADERS,
-      ...endpointHeaders  // Добавляем специфичные для эндпоинта headers
+      ...endpointHeaders
     },
     ...(data && { body: JSON.stringify(data) })
   };

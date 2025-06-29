@@ -58,7 +58,7 @@ const fetchAllPlaces = async (cityId, placeType) => {
       type,
       cityId: cityId,
       criteria,
-      direction: "DESC"
+      direction: "ASC"
     });
 
     if (!Array.isArray(response)) {
