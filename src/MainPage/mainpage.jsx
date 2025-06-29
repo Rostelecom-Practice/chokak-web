@@ -388,12 +388,12 @@ export const MainPage = () => {
 
   const getOrganizationTypeName = (type) => {
     switch(type) {
-      case 'restaurants': return 'рестораны и кафе';
-      case 'cinemas': return 'кинотеатры и концерты';
-      case 'museums': return 'парки и музеи';
-      case 'stores': return 'магазины';
-      case 'hotels': return 'отели и хостелы';
-      default: return 'организации';
+      case 'restaurants': return 'Рестораны и кафе';
+      case 'cinemas': return 'Кинотеатры и концерты';
+      case 'museums': return 'Парки и музеи';
+      case 'stores': return 'Магазины';
+      case 'hotels': return 'Отели и хостелы';
+      default: return 'Организации';
     }
   };
 
@@ -782,7 +782,7 @@ export const MainPage = () => {
             ) : activeList === 'search' ? (
               <div className="organizations-list-container">
                 <Title level={3} className="organizations-list-title">
-                  Результаты поиска "{searchQuery}" в {selectedCity?.label}
+                  Результаты поиска "{searchQuery}" в городе {selectedCity?.label}
                 </Title>
                 
                 {searchResults.length > 0 ? (
@@ -865,7 +865,7 @@ export const MainPage = () => {
             ) : organizationsList.length > 0 ? (
               <div className="organizations-list-container">
                 <Title level={3} className="organizations-list-title">
-                  {getOrganizationTypeName(activeList)} в {selectedCity?.label}
+                  {getOrganizationTypeName(activeList)} в городе {selectedCity?.label}
                 </Title>
                 
                 <div className="organizations-list">
