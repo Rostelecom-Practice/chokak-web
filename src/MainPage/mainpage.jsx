@@ -134,24 +134,26 @@ const UserReviews = ({ visible }) => {
           <Spin size="large" />
         </div>
       ) : (
-        <List
-          className="reviews-list-container"
-          itemLayout="vertical"
-          dataSource={reviews}
-          renderItem={review => (
-            <List.Item key={review.id} className="review-list-item">
-              <List.Item.Meta
-                avatar={<Avatar icon={<UserOutlined />} />}
-                title={<Text strong>{review.title}</Text>}
-                description={
-                  <>
-                    <Rate disabled value={review.rating} className="review-rate" />
-                    <Text type="secondary" className="review-date">
-                      {new Date(review.createdAt).toLocaleDateString()}
-                    </Text>
+        <div className="reviews-list-container">
+          {reviews.map(review => (
+            <Card 
+              key={review.id} 
+              className="user-review-object" // Новый класс для карточки отзыва
+            >
+              <div className="review-card-content">
+                <div className="review-card-header">
+                  <Avatar icon={<UserOutlined />} className="review-user-avatar" />
+                  <div className="review-meta-info">
+                    <Text strong className="review-card-title">{review.title}</Text>
+                    <div className="review-rating-date">
+                      <Rate disabled value={review.rating} className="review-rate" />
+                      <Text type="secondary" className="review-date">
+                        {new Date(review.createdAt).toLocaleDateString()}
+                      </Text>
+                    </div>
                     {organizations[review.organizationId] && (
-                      <div className="review-organization">
-                        <Text strong>
+                      <div className="review-organization-info">
+                        <Text strong type="secondary" className="my-review-organization">
                           {organizations[review.organizationId].name}
                         </Text>
                         <Text type="secondary" className="organization-address">
@@ -159,13 +161,15 @@ const UserReviews = ({ visible }) => {
                         </Text>
                       </div>
                     )}
-                  </>
-                }
-              />
-              <Text className="review-content">{review.content}</Text>
-            </List.Item>
-          )}
-        />
+                  </div>
+                </div>
+                <div className="review-card-body">
+                  <Text className="review-text-content">{review.content}</Text>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
       )}
       {loadingOrganizations && (
         <div className="loading-organizations">
