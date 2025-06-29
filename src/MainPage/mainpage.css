@@ -329,7 +329,10 @@
   flex-direction: column;
   justify-content: space-between;
 }
-
+.organization-address-item{
+  padding: 4px;
+  font-size: 20px;
+}
 .image-card .ant-card-meta-title {
   font-size: 20px;
   font-weight: 600;
@@ -648,13 +651,13 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   padding: 12px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  position: relative; /* Добавляем относительное позиционирование для родителя */
+  position: relative; 
 }
 
 .my-review-organization {
-  position: absolute; /* Абсолютное позиционирование */
-  top: 12px; /* Отступ сверху */
-  right: 18px; /* Отступ справа */
+  position: absolute; 
+  top: 12px; 
+  right: 18px;
   padding: 6px;
   font-size: 18px;
   color: #000000 !important;

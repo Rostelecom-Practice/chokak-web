@@ -549,7 +549,7 @@ export const MainPage = () => {
 
                 <div className="organization-address-container">
                   <EnvironmentOutlined className="address-icon" />
-                  <Text type="secondary" className="organization-address">
+                  <Text type="secondary" className="organization-address-item">
                     {selectedOrganization.address}
                   </Text>
                 </div>
@@ -825,7 +825,7 @@ export const MainPage = () => {
                           
                           <div className="organization-address-container">
                             <EnvironmentOutlined className="address-icon" />
-                            <Text type="secondary" className="organization-address">
+                            <Text type="secondary" className="organization-address-item">
                               {item.address}
                             </Text>
                           </div>
@@ -907,7 +907,7 @@ export const MainPage = () => {
                         
                         <div className="organization-address-container">
                           <EnvironmentOutlined className="address-icon" />
-                          <Text type="secondary" className="organization-address">
+                          <Text type="secondary" className="organization-address-item">
                             {item.address}
                           </Text>
                         </div>
