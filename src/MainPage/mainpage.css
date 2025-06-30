@@ -1,0 +1,899 @@
+/* Основные стили layout */
+.main-layout {
+  min-height: 100vh;
+  background-color: #fafafa;
+}
+
+/* Стили шапки */
+.main-header {
+  background: #ffffff !important;
+  padding: 0 50px !important;
+  height: 80px;
+  line-height: 80px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+
+.review-date{
+  padding: 6px;
+  font-size: 18px;
+}
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.header-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-left: auto;
+}
+
+.page-title {
+  margin: 0 !important;
+  color: #000000 !important;
+  font-weight: 600 !important;
+  white-space: nowrap;
+  font-size: 32px !important;
+}
+
+/* Увеличенные шрифты */
+.ant-typography h1 {
+  font-size: 28px;
+}
+.ant-typography h2 {
+  font-size: 24px;
+}
+.ant-typography h3 {
+  font-size: 20px;
+}
+.ant-typography h4 {
+  font-size: 18px;
+}
+.ant-btn-lg {
+  font-size: 16px;
+}
+.ant-input-lg {
+  font-size: 16px;
+}
+
+/* Стили кнопки города */
+.city-button.ant-btn {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  color: #000000 !important;
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+.city-button.ant-btn:hover {
+  background: #f0f0f0;
+}
+
+/* Стили кнопок авторизации */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auth-button.ant-btn {
+  color: #ffffff;
+  padding: 0 16px;
+  height: 40px;
+  border: none;
+  background: #000000;
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+.auth-button.ant-btn:hover {
+  background: #333333;
+  color: #ffffff;
+}
+
+/* Стили профиля пользователя */
+.profile-dropdown {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 4px 12px;
+  border: none;
+  background: transparent;
+  transition: all 0.3s;
+}
+
+.profile-dropdown:hover {
+  background: #f0f0f0;
+}
+
+.user-avatar {
+  margin-right: 8px;
+  background-color: #000000;
+  cursor: pointer;
+}
+
+.user-name {
+  color: #000000;
+  margin-left: 8px;
+  font-size: 18px;
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Стили основного контента */
+.main-content {
+  padding: 24px 50px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.user-dropdown-menu {
+  font-size: 18px !important;
+}
+
+.user-dropdown-menu .ant-dropdown-menu-item {
+  font-size: 18px !important;
+  padding: 4px 8px !important;
+}
+
+.city-dropdown-menu {
+  font-size: 16px !important;
+  min-width: 200px !important;
+}
+
+.city-dropdown-menu .ant-dropdown-menu-item {
+  font-size: 16px !important;
+  padding: 4px 16px !important;
+}
+
+.city-dropdown-menu .ant-dropdown-menu-item:hover {
+  background-color: #f0f0f0 !important;
+}
+
+.city-button {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Стили поиска */
+.search-container {
+  display: flex;
+  justify-content: center;
+  margin: 40px 0;
+  width: 100%;
+}
+
+.search-input.ant-input {
+  width: 600px;
+  height: 48px;
+  border-radius: 4px 0 0 4px;
+  border-right: none;
+  font-size: 18px;
+}
+
+.search-input.ant-input:hover,
+.search-input.ant-input:focus {
+  border-color: #000000;
+}
+
+.search-button.ant-btn {
+  height: 48px;
+  border-radius: 8px;
+  padding: 0 24px;
+  font-weight: 500;
+  font-size: 18px;
+  background-color: #000000;
+  color: #ffffff;
+  border-color: #000000;
+  transition: all 0.3s ease;
+  margin-left: 1%
+}
+
+.search-button.ant-btn:hover {
+  background-color: #333333;
+  border-color: #333333;
+  color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Стили категорий */
+.categories-container {
+  margin: 40px 0 !important;
+  justify-content: center !important;
+  width: 100% !important;
+  flex-wrap: wrap;
+  gap: 16px !important;
+}
+
+.category-button.ant-btn {
+  font-weight: 600 !important;
+  font-size: 18px;
+  padding: 8px 16px;
+  height: auto;
+  color: #000000;
+  background: transparent;
+  border: none;
+}
+
+.category-button.ant-btn:hover {
+  background: #f0f0f0 !important;
+}
+
+/* Стили карточек */
+.cards-row {
+  margin-top: 36px !important;
+  row-gap: 24px !important;
+}
+
+.card-col {
+  display: flex;
+  justify-content: center;
+  flex: 0 0 33.3333%;
+  max-width: 33.3333%;
+  padding: 0 12px !important;
+}
+
+.image-card.ant-card {
+  width: 100%;
+  max-width: 410px;
+  height: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.image-card.ant-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+}
+
+/* Область изображения */
+.image-card .ant-card-cover {
+  height: 180px;
+  overflow: hidden;
+  flex: none;
+}
+
+/* Контейнер изображения */
+.image-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f2f5;
+}
+
+/* Стили самого изображения */
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.3s ease;
+}
+
+.image-card.ant-card:hover .card-image {
+  transform: scale(1.05);
+}
+
+/* Стили для плейсхолдера */
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #f0f2f5;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #999;
+  font-size: 16px;
+}
+
+.image-placeholder-text {
+  margin-top: 8px;
+}
+
+/* Стили для контента карточки */
+.image-card .ant-card-body {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.organization-address-item{
+  padding: 4px;
+  font-size: 20px;
+}
+.image-card .ant-card-meta-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: rgba(0, 0, 0, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.image-card .ant-card-meta-description {
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Стили для спиннера загрузки */
+.image-placeholder .ant-spin {
+  color: #000000;
+}
+
+.image-placeholder .ant-spin-dot-item {
+  background-color: #000000;
+}
+
+/* Стили для списка организаций */
+.organizations-list-container {
+  margin-top: 24px;
+  padding: 0 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.organizations-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+}
+
+.organization-card {
+  width: 100%;
+  max-width: 100% !important;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+
+.organization-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+}
+
+.organization-image-container {
+  width: 300px;
+  height: 200px;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.organization-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.organization-card:hover .organization-image {
+  transform: scale(1.03);
+}
+.organization-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+}
+
+.organization-image-placeholder-icon {
+  width: 48px;
+  height: 48px;
+  background-color: #d9d9d9;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM8.5 15H10v-5h1.5v5H14V9h1.5v6.5h-1V15h-1.5v1.5h-5V15zm5-9h-5v1.5h5V6z'/%3E%3C/svg%3E");
+  mask-repeat: no-repeat;
+  mask-position: center;
+}
+
+.organization-content {
+  padding: 24px !important;
+  font-size: 18px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.organization-name {
+  font-size: 24px !important;
+  font-weight: 600;
+  margin-bottom: 0 !important;
+}
+
+.organization-title {
+  display: flex;
+  font-size: 30px !important;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px !important;
+}
+
+.organization-title h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.organization-rating {
+  font-size: 18px !important;
+  color: #666;
+}
+
+
+.organization-button {
+  margin-top: auto;
+  width: 100%;
+}
+
+.rating-text {
+  font-size: 18px !important;
+}
+
+.details-button {
+  background-color: #000000 !important;
+  height: 40px;
+  width: 80%;
+  font-size: 18px !important;
+  transition: background-color 0.3s ease;
+}
+
+.details-button:hover {
+  background-color: #333333 !important;
+}
+
+/* Стили для рейтинга */
+.ant-rate {
+  color: #faad14;
+  font-size: 16px;
+}
+
+/* Стили для бейджей */
+.ant-tag {
+  margin-left: 8px;
+}
+
+.ant-tag-gold {
+  background: #fffbe6;
+  border-color: #ffe58f;
+  color: #faad14;
+}
+
+/* Стили для заголовка списка организаций */
+.organizations-list-title {
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 30px !important;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+/* Стили для спиннера загрузки */
+.organizations-loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+/* Organization Details Layout */
+.organization-details-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.organization-details-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.organization-info-column {
+  flex: 1;
+  min-width: 0;
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.organization-reviews-column {
+  width: 100%;
+  background: #f5f5f5;
+  padding: 24px;
+  border-radius: 8px;
+}
+
+/* Organization Card */
+.organization-details-card {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.organization-image-container {
+  height: 250px;
+  overflow: hidden;
+}
+
+.organization-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.organization-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+}
+
+.organization-image-placeholder-icon {
+  width: 48px;
+  height: 48px;
+  background-color: #d9d9d9;
+}
+
+
+/* Заголовок блока отзывов */
+.reviews-header {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+/* Контейнер загрузки */
+.reviews-loading-container {
+  width: 100%;
+  max-width: 800px !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+  min-height: 200px;
+}
+
+/* Контейнер списка отзывов */
+.reviews-list-container {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.my-review-title{
+  font-size: 20px;
+}
+/* Карточка отзыва */
+.review-card {
+  width: 100%;
+  max-width: 800px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.review-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Карточка отзыва 2 */
+.user-reviews-card {
+  width: 100%;
+  max-width: none;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.user-reviews-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+.user-review-object {
+  width: 110%;
+  max-width: none;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative; 
+}
+
+.my-review-organization {
+  position: absolute; 
+  top: 12px; 
+  right: 18px;
+  padding: 6px;
+  font-size: 18px;
+  color: #000000 !important;
+}
+
+.organization-address {
+  position: absolute; /* Абсолютное позиционирование */
+  top: 50px; /* Отступ сверху (18px font-size + 6px padding + немного отступа) */
+  right: 12px; /* Совпадает с отступом справа у my-review-organization */
+  font-size: 18px;
+}
+
+/* Шапка карточки */
+.review-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* Аватар пользователя */
+.review-user-avatar {
+  background-color: #000000;
+  font-size: 30px !important;
+  flex-shrink: 0;
+}
+
+/* Мета-информация */
+.review-meta-info {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Заголовок отзыва */
+.review-card-title {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  color: #1d1d1d !important;
+  margin-bottom: 4px !important;
+}
+
+/* Дата отзыва */
+.review-post-date {
+  font-size: 16px !important;
+  color: #8c8c8c !important;
+}
+
+/* Звезды рейтинга */
+.review-rating-stars {
+  font-size: 16px !important;
+  color: #faad14 !important;
+  margin-left: auto;
+}
+
+.review-text-content {
+  font-size: 18px !important;
+}
+
+.back-button {
+  font-size: 25px !important;
+}
+
+/* Адаптивные стили */
+@media (max-width: 1200px) {
+  .card-col {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 992px) {
+  .main-header {
+    padding: 0 24px !important;
+  }
+  
+  .main-content {
+    padding: 16px 24px;
+  }
+  
+  .search-input.ant-input {
+    width: 70%;
+  }
+  
+  .organization-image-container {
+    width: 250px;
+  }
+  
+  .organization-details-layout {
+    flex-direction: column;
+  }
+  
+  .organization-reviews-column {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    height: auto;
+    padding: 12px 0;
+  }
+  
+  .header-center {
+    position: static;
+    transform: none;
+    margin-bottom: 12px;
+  }
+  
+  .header-right {
+    margin-left: 0;
+  }
+  
+  .page-title {
+    font-size: 24px !important;
+  }
+  
+  .main-content {
+    padding: 16px;
+  }
+  
+  .search-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0;
+  }
+  
+  .search-input.ant-input {
+    width: 100%;
+    border-radius: 4px;
+    border-right: 1px solid #d9d9d9 !important;
+  }
+  
+  .search-button.ant-btn {
+    width: 100%;
+    border-radius: 4px;
+  }
+  
+  .categories-container {
+    gap: 8px !important;
+    margin: 24px 0 !important;
+  }
+  
+  .category-button.ant-btn {
+    font-size: 14px;
+    padding: 6px 12px;
+  }
+  
+  .card.col {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  
+  .user-name {
+    display: none;
+  }
+  
+  .profile-dropdown {
+    padding: 4px 8px;
+  }
+  
+  .image-card.ant-card {
+    height: 300px;
+  }
+  
+  .image-card .ant-card-cover {
+    height: 220px;
+  }
+  
+  .organization-card {
+    flex-direction: column;
+  }
+  
+  .organization-image-container {
+    width: 100%;
+    height: 180px;
+  }
+  
+  .organization-content {
+    padding: 16px;
+  }
+  
+  .reviews-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .reviews-header .ant-btn {
+    width: 100%;
+  }
+  
+  .review-header {
+    flex-wrap: wrap;
+  }
+  
+  .review-content {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-center {
+    margin-bottom: 8px;
+  }
+  
+  .page-title {
+    font-size: 20px !important;
+  }
+  
+  .image-card.ant-card {
+    height: 280px;
+  }
+  
+  .image-card .ant-card-cover {
+    height: 200px;
+  }
+  
+  .organization-image-container {
+    height: 160px;
+  }
+  
+  .organization-content {
+    padding: 16px;
+  }
+  
+  .organization-title h3 {
+    font-size: 18px;
+  }
+  
+  .organizations-list-title {
+    font-size: 20px;
+  }
+  
+  .organization-details-card .organization-image-container {
+    height: 200px;
+  }
+}
