@@ -1,30 +1,11 @@
 import { useState, useEffect } from 'react';
 import { 
   Layout, 
-  Row, 
-  Col, 
-  Card, 
-  Typography, 
-  Space, 
-  Dropdown,
-  Tooltip,
   Spin,
-  Avatar,
-  Menu,
   message,
-  Rate,
-  Tag,
-  Button
 } from 'antd';
 import { 
-  SearchOutlined, 
-  UserOutlined, 
   LoginOutlined, 
-  EnvironmentOutlined, 
-  DownOutlined,
-  StarFilled,
-  StarOutlined,
-  ArrowLeftOutlined,
   FormOutlined
 } from '@ant-design/icons';
 import { CityService } from '../api/cityService';
@@ -32,16 +13,11 @@ import { ReviewForm } from '../ReviewForm/ReviewForm';
 import { OrganizationService } from '../api/organizationService';
 import { LoginForm } from '../LoginForm/LoginForm';
 import { RegisterForm } from '../RegisterForm/RegisterForm';
-import { auth, loginUser } from '../firebase/firebase';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { auth } from '../firebase/firebase';
+import { signOut } from 'firebase/auth';
 import { useAuth } from '../firebase/useAuth';
 import { apiRequest } from '../api/api';
 import './MainPage.css';
-
-import { UserReviews } from './components/UserReviews';
-import { SearchSection } from './components/SearchSection';
-import { Categories } from './components/Categories';
-import { OrganizationsList } from './components/OrganizationsList';
 import { Header } from './components/Header';
 import { MainContent } from './components/MainContent';
 import { OrganizationDetails } from './components/OrganizationDetails';
@@ -50,8 +26,8 @@ import { OrganizationDetails } from './components/OrganizationDetails';
 
 const { Content } = Layout;
 
-const CARD_HEIGHT = 320;
-const IMAGE_HEIGHT = 240;
+// const CARD_HEIGHT = 320;
+// const IMAGE_HEIGHT = 240;
 
 export const MainPage = () => {
   const { user, loading: authLoading, getAuthData } = useAuth();
